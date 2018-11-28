@@ -196,6 +196,8 @@ Then we can evaluate model diagnostics using the plot() function:
 
 # a. Model diagnostics:
 
+plot(homes_lm3)
+
 ```
 
 ###6. Model comparison by Akaike Information Criterion
@@ -205,6 +207,9 @@ The AIC is a quantitative metric for model "optimization" that balances complexi
 ```{r AIC}
 
 # a. AIC values for each model
+
+full_iac <- AIC(homes_lm1)
+final_aic <- AIC(homes_lm3)
 
 # Answer: which would you pick? 
 
@@ -216,7 +221,7 @@ The AIC is a quantitative metric for model "optimization" that balances complexi
 
 # a. Prepare a nice regression table:
 
-
+stargazer(homes_lm1, homes_lm3, type = "html")
 
 # Note: If you want to work with this in Word, save to html, open, copy and paste into Word. 
 
@@ -268,9 +273,16 @@ Make predictions for the new data using predict():
 
 # a. Make predictions using the new data frame:
 
+# price_predict <- predict(homes_lm3, newdata = df_new)
+# only gives vector so need to bind to data. also add the standard errors
+
+price_predict <- predict(homes_lm3, newdata = df_new, se.fit = TRUE, interval = "confidence")
+
 # b. Bind predictions to the data to make it actually useful:
 
+predict_df <- data.frame(df_new, price_predict)
 
+predict_df
 
 ```
 
@@ -280,6 +292,12 @@ Then visualize it!
 
 # Create a line graph with square footage on the x-axis, predicted price on y-axis, with color dependent on City and facet_wrapped by sale status (follow along):
 
+predict_graph <- ggplot(predict_df, aes(x = SqFt, y = fit.fit)) + 
+  geom_line(aes(color = City)) +
+  geom_point(data = homes_sub, aes(x = SqFt, y = Price), alpha = 0.5) +
+  facet_wrap(~Status)
+
+predict_graph
 
 ```
 
